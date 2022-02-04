@@ -93,8 +93,6 @@ const sendMessage = (data, body) => {
 
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
-// Change Made: I made this async so that we can await the result of saveMessage before executing the
-// dispatches in the conditional statement
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
