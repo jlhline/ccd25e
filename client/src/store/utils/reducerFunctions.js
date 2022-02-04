@@ -1,5 +1,3 @@
-// Change made: using convoCopy so that a state change is recognized by components listening
-
 export const addMessageToStore = (state, payload) => {
   const { message, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
@@ -14,10 +12,10 @@ export const addMessageToStore = (state, payload) => {
   }
   return state.map((convo) => {
     if (convo.id === message.conversationId) {
-      const convoCopy = { ...convo };
-      convoCopy.messages.push(message);
-      convoCopy.latestMessageText = message.text;
-      return convoCopy;
+      let messages = convo.messages.slice();
+      messages.push(message);
+      const latestMessageText = message.text;
+      return { ...convo, messages, latestMessageText };
     } else {
       return convo;
     }
@@ -67,15 +65,15 @@ export const addSearchedUsersToStore = (state, users) => {
 
   return newState;
 };
-// Change made: using convoCopy so that a state change is recognized by components listening
+
 export const addNewConvoToStore = (state, recipientId, message) => {
   return state.map((convo) => {
     if (convo.otherUser.id === recipientId) {
-      const convoCopy = { ...convo };
-      convoCopy.id = message.conversationId;
-      convoCopy.messages.push(message);
-      convoCopy.latestMessageText = message.text;
-      return convoCopy;
+      const id = message.conversationId;
+      let messages = convo.messages.slice();
+      messages.push(message);
+      const latestMessageText = message.text;
+      return { ...convo, id, messages, latestMessageText };
     } else {
       return convo;
     }
