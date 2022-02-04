@@ -5,7 +5,6 @@ const onlineUsers = require("../../onlineUsers");
 
 // get all conversations for a user, include latest message text for preview, and all messages
 // include other user model so we have info on username/profile pic (don't include current user info)
-// Change Made: changing the order keyword to "ASC" to order messages correctly on page load
 router.get("/", async (req, res, next) => {
   try {
     if (!req.user) {
@@ -22,7 +21,7 @@ router.get("/", async (req, res, next) => {
       attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
-        { model: Message, order: ["createdAt", "ASC"] },
+        { model: Message, order: ["createdAt", "DESC"] },
         {
           model: User,
           as: "user1",
@@ -69,7 +68,7 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[0].text;
+      convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length-1].text;
       conversations[i] = convoJSON;
     }
 
