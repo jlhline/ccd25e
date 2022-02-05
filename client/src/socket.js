@@ -17,7 +17,9 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    store.dispatch(setNewMessage(data.message, data.sender));
+    const recipientId = data.recipientId;
+    const userId = store.getState().user.id
+    if(userId=== recipientId) store.dispatch(setNewMessage(data.message, data.sender));
   });
 });
 
