@@ -84,10 +84,13 @@ const saveMessage = async (body) => {
 };
 
 const sendMessage = (data, body) => {
+
+console.log("body",body)
   socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
+    senderName: body.senderName
   });
 };
 
@@ -102,7 +105,7 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
-
+    console.log("inside postMessage data and body",data,body)
     sendMessage(data, body);
   } catch (error) {
     console.error(error);

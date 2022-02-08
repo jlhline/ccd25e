@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
 
-// expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
+// expects {recipientId, text, conversationId, senderName } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
   try {
     if (!req.user) {
@@ -37,6 +37,7 @@ router.post("/", async (req, res, next) => {
       text,
       conversationId: conversation.id
     });
+    console.log("first conversation notifs default",conversation.notifications)
     res.json({ message, sender });
   } catch (error) {
     next(error);

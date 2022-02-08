@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
@@ -17,12 +17,21 @@ const useStyles = makeStyles((theme) => ({
       cursor: "grab",
     },
   },
+  typo: {
+    display: "flex",
+    backgroundColor: `${theme.palette.primary.main}`,
+    color: "white",
+    minWidth: "24px",
+
+    justifyContent: "center",
+    borderRadius: "10px",
+  },
 }));
 
 const Chat = (props) => {
   const classes = useStyles();
   const { conversation } = props;
-  const { otherUser } = conversation;
+  const { otherUser, notifications } = conversation;
 
   const handleClick = async (conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
@@ -37,6 +46,7 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
+      <div className={classes.typo}>{notifications}</div>
     </Box>
   );
 };

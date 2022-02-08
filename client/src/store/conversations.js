@@ -4,6 +4,7 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  increment,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,6 +16,7 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const INCREMENT_NOTIFICATIONS = "INCREMENT_NOTIFICATIONS";
 
 // ACTION CREATORS
 
@@ -67,6 +69,13 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+//increment the notification count for non-active chat of sender
+export const incrementNotifications = (sender) => {
+  return {
+    type: INCREMENT_NOTIFICATIONS,
+    payload: { sender }
+  }
+}
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -91,6 +100,8 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+    case INCREMENT_NOTIFICATIONS:
+      return increment(state,action.payload.sender);
     default:
       return state;
   }

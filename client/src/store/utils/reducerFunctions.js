@@ -82,3 +82,17 @@ export const addNewConvoToStore = (state, recipientId, message) => {
     }
   });
 };
+
+export const increment = (state, sender) => {
+  console.log("increment sender",sender)
+  return state.map((convo) => {
+    if(convo.otherUser.username === sender){
+      return {
+        ...convo,
+        notifications : convo.notifications + 1
+      }
+    } else {
+      return convo;
+    }
+  })
+}

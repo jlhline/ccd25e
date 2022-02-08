@@ -1,8 +1,31 @@
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const db = require("../db");
 const Message = require("./message");
 
-const Conversation = db.define("conversation", {});
+const Conversation = db.define("conversation", {
+  lastSent: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: '',
+    get(){
+      return this.getDataValue("lastSent");
+    },
+    set(value){
+      this.setDataValue("lastSent",value);
+    },
+  },
+  notifications: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    set(value){
+      this.setDataValue("notifications",value);
+    },
+    get(){
+      return this.getDataValue("notifications");
+    },
+  }
+});
 
 // find conversation given two user Ids
 
