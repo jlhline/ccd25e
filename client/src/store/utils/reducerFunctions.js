@@ -6,6 +6,7 @@ export const addMessageToStore = (state, payload) => {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      notifications: 0
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -84,12 +85,25 @@ export const addNewConvoToStore = (state, recipientId, message) => {
 };
 
 export const increment = (state, sender) => {
-  console.log("increment sender",sender)
+  
   return state.map((convo) => {
     if(convo.otherUser.username === sender){
       return {
         ...convo,
         notifications : convo.notifications + 1
+      }
+    } else {
+      return convo;
+    }
+  })
+}
+export const reset = (state,otherUser) => {
+  
+  return state.map((convo) => {
+    if(convo.otherUser.username === otherUser){
+      return {
+        ...convo,
+        notifications : 0
       }
     } else {
       return convo;

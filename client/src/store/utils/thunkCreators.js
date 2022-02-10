@@ -5,9 +5,9 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  resetNotifications
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
-
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
   config.headers["x-access-token"] = token;
@@ -85,7 +85,7 @@ const saveMessage = async (body) => {
 
 const sendMessage = (data, body) => {
 
-console.log("body",body)
+
   socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
@@ -105,12 +105,25 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
-    console.log("inside postMessage data and body",data,body)
+  
     sendMessage(data, body);
   } catch (error) {
     console.error(error);
   }
 };
+//Update lastSent property of conversation and either: set notifications to 0(after reading),
+//or increment notifications number in db
+export const updateNotifications = (body,otherUser) => async (dispatch) => {
+  
+  try {
+    if(body.action && body.action === 'reset') dispatch(resetNotifications(otherUser))
+    await axios.put("/api/conversations", body);
+  } catch (error) {
+    console.error(error);
+  }
+  
+  
+}
 
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {

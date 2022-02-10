@@ -37,7 +37,7 @@ router.post("/", async (req, res, next) => {
       text,
       conversationId: conversation.id
     });
-    console.log("first conversation notifs default",conversation.notifications)
+   
     res.json({ message, sender });
   } catch (error) {
     next(error);

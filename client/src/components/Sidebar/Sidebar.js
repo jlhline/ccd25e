@@ -3,6 +3,7 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { Search, Chat, CurrentUser } from "./index.js";
+import { updateNotifications } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -22,8 +23,11 @@ const useStyles = makeStyles(() => ({
 const Sidebar = (props) => {
   const classes = useStyles();
   const conversations = props.conversations || [];
-  const { handleChange, searchTerm } = props;
+  const { handleChange, searchTerm, user } = props;
 
+  const updateNotifs = (body, otherUser) => {
+    props.updateNotifications({ ...body, recipientId: user.id }, otherUser);
+  };
   return (
     <Box className={classes.root}>
       <CurrentUser />
@@ -36,6 +40,7 @@ const Sidebar = (props) => {
         .map((conversation) => {
           return (
             <Chat
+              updateNotifs={updateNotifs}
               conversation={conversation}
               key={conversation.otherUser.username}
             />
@@ -44,11 +49,18 @@ const Sidebar = (props) => {
     </Box>
   );
 };
-
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateNotifications: (body, otherUser) => {
+      dispatch(updateNotifications(body, otherUser));
+    },
+  };
+};
 const mapStateToProps = (state) => {
   return {
     conversations: state.conversations,
+    user: state.user,
   };
 };
 
-export default connect(mapStateToProps)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

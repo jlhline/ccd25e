@@ -18,7 +18,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId
         }
       },
-      attributes: ["id"],
+      attributes: ["id", "lastSent", "notifications"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message, order: ["createdAt", "ASC"] },
@@ -67,7 +67,6 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
-      // set properties for notification count and latest message preview
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
       // if current user sent the last message, they have read all messages from otherUser and should have 0 notifications
@@ -78,6 +77,37 @@ router.get("/", async (req, res, next) => {
     }
 
     res.json(conversations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/", async (req, res, next) => {
+  try {
+    const { recipientId, senderId, lastSent, action } = req.body;
+
+    let conversation = await Conversation.findConversation(
+      senderId,
+      recipientId
+    );
+
+    //Update lastSent unless we are only resetting notifications to 0
+    if (lastSent) await conversation.update({ lastSent: lastSent });
+    //return immediately if no action specified
+    if (!action) {
+      return res.json({ lastSent });
+    }
+    //increment notifications by one
+    else if (action === "inc") {
+      await conversation.increment("notifications");
+    }
+    //reset notifications
+    else if (action === "reset") {
+      await conversation.set({ notifications: 0 });
+    }
+    await conversation.save();
+
+    return res.json({ lastSent });
   } catch (error) {
     next(error);
   }
