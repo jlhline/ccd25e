@@ -105,8 +105,9 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
-  
+    await dispatch(updateNotifications({...body,lastSent:body.senderName}))
     sendMessage(data, body);
+   
   } catch (error) {
     console.error(error);
   }

@@ -23,9 +23,12 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", async (data) => {
-  
+  const currentState = store.getState()
+
+  if(currentState.user.id){
     const recipientId = data.recipientId;
     const currentState = store.getState()
+    
     const userId = currentState.user.id
     const activeConversation = currentState.activeConversation;
     
@@ -33,13 +36,17 @@ socket.on("connect", () => {
 
     //Update notifications number in DB and increment notifications on front end without emitting read status
     if(activeConversation !== data.senderName) {
+      
       store.dispatch(incrementNotifications(data.senderName))
       store.dispatch(updateNotifications({ lastSent: data.senderName, senderId: data.message.senderId, recipientId: recipientId, action : 'inc'},data.senderName,null))
     } 
     //Update DB lastSent property and automatically emit read status for the active conversation
     else {
+      
       store.dispatch(updateNotifications({ lastSent: data.senderName, senderId: data.message.senderId, recipientId: recipientId},data.senderName,data.message.id))
     }
+  }
+    
   });
 
   //Passing along message information to pin the read-status avatar to newest message
