@@ -73,6 +73,13 @@ router.get("/", async (req, res, next) => {
       if (convoJSON.lastSent !== convoJSON.otherUser.username) {
         convoJSON.notifications = 0;
       }
+      // get the id of the last read message by other user 
+      let lastReadIndex = convoJSON.messages.length - convoJSON.notifications - 1 
+      while(lastReadIndex >= 0){
+        if(convoJSON.messages[lastReadIndex].senderId !== convoJSON.otherUser.id) break;
+        lastReadIndex--
+      }
+      convoJSON.avatarId = lastReadIndex >= 0 ? convoJSON.messages[lastReadIndex].id : null
       conversations[i] = convoJSON;
     }
 

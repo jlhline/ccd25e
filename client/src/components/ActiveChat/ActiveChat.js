@@ -23,6 +23,7 @@ const useStyles = makeStyles(() => ({
 const ActiveChat = (props) => {
   const classes = useStyles();
   const { user } = props;
+  
   const conversation = props.conversation || {};
   return (
     <Box className={classes.root}>
@@ -37,6 +38,7 @@ const ActiveChat = (props) => {
               messages={conversation.messages}
               otherUser={conversation.otherUser}
               userId={user.id}
+              avatarId={conversation.avatarId}
             />
             <Input
               otherUser={conversation.otherUser}

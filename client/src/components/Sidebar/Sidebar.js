@@ -25,8 +25,12 @@ const Sidebar = (props) => {
   const conversations = props.conversations || [];
   const { handleChange, searchTerm, user } = props;
 
-  const updateNotifs = (body, otherUser) => {
-    props.updateNotifications({ ...body, recipientId: user.id }, otherUser);
+  const updateNotifs = async (body, otherUser, messageId) => {
+    await props.updateNotifications(
+      { ...body, recipientId: user.id },
+      otherUser,
+      messageId
+    );
   };
   return (
     <Box className={classes.root}>
@@ -51,8 +55,8 @@ const Sidebar = (props) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateNotifications: (body, otherUser) => {
-      dispatch(updateNotifications(body, otherUser));
+    updateNotifications: (body, otherUser, messageId) => {
+      dispatch(updateNotifications(body, otherUser, messageId));
     },
   };
 };

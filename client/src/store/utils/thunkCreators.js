@@ -111,13 +111,24 @@ export const postMessage = (body) => async (dispatch) => {
     console.error(error);
   }
 };
-//Update lastSent property of conversation and either: set notifications to 0(after reading),
-//or increment notifications number in db
-export const updateNotifications = (body,otherUser) => async (dispatch) => {
+//switch recipient and sender when emitting read status
+const sendReadStatus = (body, messageId) => {
+  
+  socket.emit("read-status", {
+    messageId: messageId,
+    recipientId: body.senderId,
+    senderId: body.recipientId,
+  });
+};
+//Update DB and either: set notifications to 0(after reading),
+//or increment notifications number for conversation
+//emit message id to other user to display avatar for read status
+export const updateNotifications = (body,otherUser,messageId) => async (dispatch) => {
   
   try {
     if(body.action && body.action === 'reset') dispatch(resetNotifications(otherUser))
     await axios.put("/api/conversations", body);
+    if(messageId) sendReadStatus(body,messageId)
   } catch (error) {
     console.error(error);
   }

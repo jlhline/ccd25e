@@ -5,7 +5,8 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   increment,
-  reset
+  reset,
+  setReadStatus
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -19,6 +20,7 @@ const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
 const INCREMENT_NOTIFICATIONS = "INCREMENT_NOTIFICATIONS";
 const RESET_NOTIFICATIONS = "RESET_NOTIFICATIONS";
+const SET_AVATAR = "SET_AVATAR"
 // ACTION CREATORS
 
 export const gotConversations = (conversations) => {
@@ -84,6 +86,13 @@ export const resetNotifications = (otherUser) => {
     payload: { otherUser }
   }
 }
+
+export const setAvatar = (messageData) => {
+  return {
+    type: SET_AVATAR,
+    payload: messageData 
+  }
+}
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -112,6 +121,8 @@ const reducer = (state = [], action) => {
       return increment(state,action.payload.sender);
     case RESET_NOTIFICATIONS:
       return reset(state,action.payload.otherUser);
+    case SET_AVATAR:
+      return setReadStatus(state,action.payload);
     default:
       return state;
   }
