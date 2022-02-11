@@ -112,7 +112,7 @@ export const reset = (state,otherUser) => {
 }
 
 export const setReadStatus = (state,messageData) => {
-  console.log("inside setReadStatus reducer",messageData)
+ 
   return state.map((convo) => {
     if(convo.otherUser.id === messageData.senderId){
       return {
