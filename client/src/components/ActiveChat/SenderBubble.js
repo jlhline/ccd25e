@@ -3,11 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box, Typography } from "@material-ui/core";
 import { Avatar } from "@material-ui/core";
 
-
 const useStyles = makeStyles(() => ({
   profilePic: {
     height: 22,
-    width: 22
+    width: 22,
   },
   root: {
     display: "flex",
@@ -36,16 +35,22 @@ const useStyles = makeStyles(() => ({
 const SenderBubble = (props) => {
   const classes = useStyles();
   const { time, text, avatarId, id, otherUser } = props;
-  
+
   return (
     <Box className={classes.root}>
       <Typography className={classes.date}>{time}</Typography>
       <Box className={classes.bubble}>
         <Typography className={classes.text}>{text}</Typography>
       </Box>
-      <div>{avatarId === id ? 
-      <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.profilePic}></Avatar> 
-      : null }</div>
+      <Box>
+        {avatarId === id ? (
+          <Avatar
+            alt={otherUser.username}
+            src={otherUser.photoUrl}
+            className={classes.profilePic}
+          ></Avatar>
+        ) : null}
+      </Box>
     </Box>
   );
 };

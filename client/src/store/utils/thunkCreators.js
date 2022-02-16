@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  resetNotifications
+  resetNotifications,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 axios.interceptors.request.use(async function (config) {
@@ -84,8 +84,6 @@ const saveMessage = async (body) => {
 };
 
 const sendMessage = (data, body) => {
-
-
   socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
@@ -97,55 +95,58 @@ const sendMessage = (data, body) => {
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
 export const postMessage = (body) => async (dispatch) => {
-  const doNotIncrement = true;
   try {
     const data = await saveMessage(body);
 
     if (!body.conversationId) {
-      dispatch(addConversation(body.recipientId, data.message, doNotIncrement));
+      dispatch(addConversation(body.recipientId, data.message));
     } else {
-      dispatch(setNewMessage(data.message,null,doNotIncrement));
+      dispatch(setNewMessage(data.message));
     }
     sendMessage(data, body);
-   
   } catch (error) {
     console.error(error);
   }
 };
 //switch recipient and sender when emitting read status
 const sendReadStatus = (data) => {
-  
+  const { recipientId, senderId, messageId } = data;
   socket.emit("read-status", {
-    senderId: data.recipientId,
-    recipientId: data.senderId,
-    messageId: data.messageId
+    senderId: recipientId,
+    recipientId: senderId,
+    messageId: messageId,
   });
 };
 
-export const handleIncomingMessage = (data, doNotIncrement) => async (dispatch) => {
-  
+export const handleIncomingMessage = (data, increment) => async (dispatch) => {
+  const { message, sender, recipientId } = data;
   try {
-    dispatch(setNewMessage(data.message, data.sender,doNotIncrement))
-    if(doNotIncrement){
-      sendReadStatus({senderId:data.message.senderId, recipientId:data.recipientId,messageId:data.message.id})
-      await axios.put("/api/messages",{conversationId:data.message.conversationId});
-    } 
+    dispatch(setNewMessage(message, sender, increment));
+    if (!increment) {
+      sendReadStatus({
+        senderId: message.senderId,
+        recipientId: recipientId,
+        messageId: message.id,
+      });
+      await axios.put("/api/messages", {
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        recipientId: recipientId,
+      });
+    }
   } catch (error) {
     console.error(error);
   }
-}
-export const updateNotifications = (data,otherUsername) => async (dispatch) => {
-  
+};
+export const setNotifsToZero = (data, otherUsername) => async (dispatch) => {
   try {
-      
-      dispatch(resetNotifications(otherUsername))
-      await axios.put("/api/messages", data);
-      sendReadStatus(data)
-    
+    dispatch(resetNotifications(otherUsername));
+    await axios.put("/api/messages", data);
+    sendReadStatus(data);
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {

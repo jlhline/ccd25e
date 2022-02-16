@@ -23,7 +23,8 @@ Message.updateStatuses = async function(conversationId) {
     },
     {
       where: {
-        conversationId: conversationId
+        conversationId: conversationId,
+        read: false
       }
     }
   );

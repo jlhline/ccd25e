@@ -3,7 +3,7 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { Search, Chat, CurrentUser } from "./index.js";
-import { updateNotifications } from "../../store/utils/thunkCreators";
+import { setNotifsToZero } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -25,8 +25,8 @@ const Sidebar = (props) => {
   const conversations = props.conversations || [];
   const { handleChange, searchTerm, user } = props;
 
-  const updateNotifs = async (body, otherUsername) => {
-    await props.updateNotifications(
+  const setNotifsToZero = async (body, otherUsername) => {
+    await props.setNotifsToZero(
       { ...body, recipientId: user.id },
       otherUsername
     );
@@ -43,7 +43,7 @@ const Sidebar = (props) => {
         .map((conversation) => {
           return (
             <Chat
-              updateNotifs={updateNotifs}
+              setNotifsToZero={setNotifsToZero}
               conversation={conversation}
               key={conversation.otherUser.username}
             />
@@ -54,8 +54,8 @@ const Sidebar = (props) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateNotifications: (body, otherUser, messageId) => {
-      dispatch(updateNotifications(body, otherUser, messageId));
+    setNotifsToZero: (body, otherUser, messageId) => {
+      dispatch(setNotifsToZero(body, otherUser, messageId));
     },
   };
 };

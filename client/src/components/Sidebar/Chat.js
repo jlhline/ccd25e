@@ -31,12 +31,20 @@ const useStyles = makeStyles((theme) => ({
 
 const Chat = (props) => {
   const classes = useStyles();
-  const { conversation, updateNotifs } = props;
+  const { conversation, setNotifsToZero, setActiveChat } = props;
   const { otherUser } = conversation;
-  let { notifications } = conversation
+  const { notifications } = conversation;
   const handleClick = async (conversation) => {
-    await props.setActiveChat(conversation.otherUser.username);
-    if(notifications > 0 && conversation.messages.length) await updateNotifs({ senderId : otherUser.id, messageId: conversation.messages[conversation.messages.length-1].id, conversationId:conversation.id},conversation.otherUser.username);
+    await setActiveChat(conversation.otherUser.username);
+    if (notifications > 0 && conversation.messages.length)
+      await setNotifsToZero(
+        {
+          senderId: otherUser.id,
+          messageId: conversation.messages[conversation.messages.length - 1].id,
+          conversationId: conversation.id,
+        },
+        conversation.otherUser.username
+      );
   };
 
   return (
@@ -48,7 +56,9 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      <Typography className={classes.typo}>{notifications === 0 ? null : notifications}</Typography>
+      <Typography className={classes.typo}>
+        {notifications === 0 ? null : notifications}
+      </Typography>
     </Box>
   );
 };

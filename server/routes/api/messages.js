@@ -46,13 +46,22 @@ router.post("/", async (req, res, next) => {
 router.put("/", async (req, res, next) => {
   
   try {
-    const { conversationId} = req.body;
     
+    const { conversationId, senderId, recipientId } = req.body;
+    if (!req.user || !conversationId ) {
+      return res.sendStatus(401);
+    }
+    //Find and validate conversation with sender and recipient before updating messages for protection
+    let conversation = await Conversation.findConversation(senderId,recipientId);
+    if(!conversation || conversation.id !== conversationId){
+      return res.sendStatus(401);
+    }
+
     await Message.updateStatuses(
       conversationId
     );
     
-    return res.json({ message:'success'});
+    return res.json({ message:`All unread messages with conversationId ${conversationId} have been set to read`});
     
   } catch (error) {
     next(error);
