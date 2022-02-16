@@ -1,12 +1,14 @@
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { message, sender, doNotIncrement } = payload;
+
+  const notification = doNotIncrement ? 0 : 1;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
-      notifications: 0
+      notifications: notification,
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -18,6 +20,7 @@ export const addMessageToStore = (state, payload) => {
         ...convo,
         messages: [...convo.messages, message],
         latestMessageText: message.text,
+        notifications: convo.notifications + notification,
       };
     } else {
       return convo;
@@ -69,7 +72,14 @@ export const addSearchedUsersToStore = (state, users) => {
   return newState;
 };
 
-export const addNewConvoToStore = (state, recipientId, message) => {
+export const addNewConvoToStore = (
+  state,
+  recipientId,
+  message,
+  doNotIncrement
+) => {
+  const notification = doNotIncrement ? 0 : 1;
+
   return state.map((convo) => {
     if (convo.otherUser.id === recipientId) {
       return {
@@ -77,6 +87,7 @@ export const addNewConvoToStore = (state, recipientId, message) => {
         id: message.conversationId,
         messages: [...convo.messages, message],
         latestMessageText: message.text,
+        notifications: notification ? notification : 0,
       };
     } else {
       return convo;
@@ -84,43 +95,28 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   });
 };
 
-export const increment = (state, sender) => {
-  
+export const reset = (state, otherUsername) => {
   return state.map((convo) => {
-    if(convo.otherUser.username === sender){
+    if (convo.otherUser.username === otherUsername) {
       return {
         ...convo,
-        notifications : convo.notifications + 1
-      }
+        notifications: 0,
+      };
     } else {
       return convo;
     }
-  })
-}
-export const reset = (state,otherUser) => {
-  
-  return state.map((convo) => {
-    if(convo.otherUser.username === otherUser){
-      return {
-        ...convo,
-        notifications : 0
-      }
-    } else {
-      return convo;
-    }
-  })
-}
+  });
+};
 
-export const setReadStatus = (state,messageData) => {
- 
+export const setReadStatus = (state, messageData) => {
   return state.map((convo) => {
-    if(convo.otherUser.id === messageData.senderId){
+    if (convo.otherUser.id === messageData.senderId) {
       return {
         ...convo,
-        avatarId : messageData.messageId
-      }
+        avatarId: messageData.messageId,
+      };
     } else {
       return convo;
     }
-  })
-}
+  });
+};

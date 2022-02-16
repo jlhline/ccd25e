@@ -4,7 +4,6 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
-  increment,
   reset,
   setReadStatus
 } from "./utils/reducerFunctions";
@@ -18,7 +17,6 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
-const INCREMENT_NOTIFICATIONS = "INCREMENT_NOTIFICATIONS";
 const RESET_NOTIFICATIONS = "RESET_NOTIFICATIONS";
 const SET_AVATAR = "SET_AVATAR"
 // ACTION CREATORS
@@ -30,10 +28,10 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (message, sender , doNotIncrement) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, sender: sender || null, doNotIncrement },
   };
 };
 
@@ -65,25 +63,18 @@ export const clearSearchedUsers = () => {
 };
 
 // add new conversation when sending a new message
-export const addConversation = (recipientId, newMessage) => {
+export const addConversation = (recipientId, newMessage, doNotIncrement) => {
   return {
     type: ADD_CONVERSATION,
-    payload: { recipientId, newMessage },
+    payload: { recipientId, newMessage, doNotIncrement },
   };
 };
 
-//increment the notification count for non-active chat of sender
-export const incrementNotifications = (sender) => {
-  return {
-    type: INCREMENT_NOTIFICATIONS,
-    payload: { sender }
-  }
-}
 //reset notifications for active chat to 0
-export const resetNotifications = (otherUser) => {
+export const resetNotifications = (otherUsername) => {
   return {
     type: RESET_NOTIFICATIONS,
-    payload: { otherUser }
+    payload: otherUsername
   }
 }
 
@@ -115,12 +106,11 @@ const reducer = (state = [], action) => {
       return addNewConvoToStore(
         state,
         action.payload.recipientId,
-        action.payload.newMessage
+        action.payload.newMessage,
+        action.payload.doNotIncrement
       );
-    case INCREMENT_NOTIFICATIONS:
-      return increment(state,action.payload.sender);
     case RESET_NOTIFICATIONS:
-      return reset(state,action.payload.otherUser);
+      return reset(state,action.payload);
     case SET_AVATAR:
       return setReadStatus(state,action.payload);
     default:

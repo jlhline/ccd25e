@@ -90,22 +90,22 @@ const sendMessage = (data, body) => {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
-    senderName: body.senderName
+    senderName: body.senderName,
   });
 };
 
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
 export const postMessage = (body) => async (dispatch) => {
+  const doNotIncrement = true;
   try {
     const data = await saveMessage(body);
 
     if (!body.conversationId) {
-      dispatch(addConversation(body.recipientId, data.message));
+      dispatch(addConversation(body.recipientId, data.message, doNotIncrement));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(setNewMessage(data.message,null,doNotIncrement));
     }
-    await dispatch(updateNotifications({...body,lastSent:body.senderName}))
     sendMessage(data, body);
    
   } catch (error) {
@@ -113,28 +113,38 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 //switch recipient and sender when emitting read status
-const sendReadStatus = (body, messageId) => {
+const sendReadStatus = (data) => {
   
   socket.emit("read-status", {
-    messageId: messageId,
-    recipientId: body.senderId,
-    senderId: body.recipientId,
+    senderId: data.recipientId,
+    recipientId: data.senderId,
+    messageId: data.messageId
   });
 };
-//Update DB and either: set notifications to 0(after reading),
-//or increment notifications number for conversation
-//emit message id to other user to display avatar for read status
-export const updateNotifications = (body,otherUser,messageId) => async (dispatch) => {
+
+export const handleIncomingMessage = (data, doNotIncrement) => async (dispatch) => {
   
   try {
-    if(body.action && body.action === 'reset') dispatch(resetNotifications(otherUser))
-    await axios.put("/api/conversations", body);
-    if(messageId) sendReadStatus(body,messageId)
+    dispatch(setNewMessage(data.message, data.sender,doNotIncrement))
+    if(doNotIncrement){
+      sendReadStatus({senderId:data.message.senderId, recipientId:data.recipientId,messageId:data.message.id})
+      await axios.put("/api/messages",{conversationId:data.message.conversationId});
+    } 
   } catch (error) {
     console.error(error);
   }
+}
+export const updateNotifications = (data,otherUsername) => async (dispatch) => {
   
-  
+  try {
+      
+      dispatch(resetNotifications(otherUsername))
+      await axios.put("/api/messages", data);
+      sendReadStatus(data)
+    
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export const searchUsers = (searchTerm) => async (dispatch) => {

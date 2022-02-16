@@ -3,16 +3,6 @@ const db = require("../db");
 const Message = require("./message");
 
 const Conversation = db.define("conversation", {
-  lastSent: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    defaultValue: '',
-  },
-  notifications: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
-  }
 });
 
 // find conversation given two user Ids

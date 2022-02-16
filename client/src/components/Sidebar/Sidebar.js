@@ -25,11 +25,10 @@ const Sidebar = (props) => {
   const conversations = props.conversations || [];
   const { handleChange, searchTerm, user } = props;
 
-  const updateNotifs = async (body, otherUser, messageId) => {
+  const updateNotifs = async (body, otherUsername) => {
     await props.updateNotifications(
       { ...body, recipientId: user.id },
-      otherUser,
-      messageId
+      otherUsername
     );
   };
   return (

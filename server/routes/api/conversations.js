@@ -10,6 +10,7 @@ router.get("/", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
+
     const userId = req.user.id;
     const conversations = await Conversation.findAll({
       where: {
@@ -18,7 +19,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId
         }
       },
-      attributes: ["id", "lastSent", "notifications"],
+      attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message, order: ["createdAt", "ASC"] },
@@ -69,63 +70,29 @@ router.get("/", async (req, res, next) => {
 
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
-      // if current user sent the last message, they have read all messages from otherUser and should have 0 notifications
-      if (convoJSON.lastSent !== convoJSON.otherUser.username) {
-        convoJSON.notifications = 0;
-      }
-      // get the id of the last read message by other user
-      let lastReadIndex =
-        convoJSON.messages.length - convoJSON.notifications - 1;
-      while (lastReadIndex >= 0) {
+      //Set notifications for current user retrieving conversation
+      let notifications = 0;
+      //Set index of last message read by other user
+      let lastReadIndex = -1;
+      for (let i = 0; i < convoJSON.messages.length; i++) {
         if (
-          convoJSON.messages[lastReadIndex].senderId !== convoJSON.otherUser.id
+          !convoJSON.messages[i].read &&
+          convoJSON.messages[i].senderId !== userId
         )
-          break;
-        lastReadIndex--;
+          notifications++;
+        else if (
+          convoJSON.messages[i].read &&
+          convoJSON.messages[i].senderId === userId
+        )
+          lastReadIndex = i;
       }
+      convoJSON.notifications = notifications;
       convoJSON.avatarId =
         lastReadIndex >= 0 ? convoJSON.messages[lastReadIndex].id : null;
       conversations[i] = convoJSON;
     }
 
     res.json(conversations);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/", async (req, res, next) => {
-  try {
-    const { recipientId, senderId, lastSent, action } = req.body;
-
-    let conversation = await Conversation.findConversation(
-      senderId,
-      recipientId
-    );
-
-    //If the other user is not online and we have sent a new message, increment notifications
-    if (!onlineUsers.includes(recipientId)) {
-      await conversation.increment("notifications");
-    }
-    //Update lastSent unless we are only resetting notifications to 0
-    if (lastSent) await conversation.update({ lastSent: lastSent });
-    //return immediately if no action specified
-    await conversation.save();
-    if (!action) {
-      return res.json({ lastSent });
-    }
-
-    //increment notifications by one
-    else if (action === "inc") {
-      await conversation.increment("notifications");
-    }
-    //reset notifications
-    else if (action === "reset") {
-      await conversation.set({ notifications: 0 });
-    }
-    await conversation.save();
-
-    return res.json({ lastSent });
   } catch (error) {
     next(error);
   }

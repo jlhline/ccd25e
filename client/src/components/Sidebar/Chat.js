@@ -36,7 +36,7 @@ const Chat = (props) => {
   let { notifications } = conversation
   const handleClick = async (conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
-    if(notifications > 0 && conversation.messages.length) await updateNotifs({senderId: otherUser.id, action : 'reset'}, conversation.otherUser.username,conversation.messages[conversation.messages.length-1].id);
+    if(notifications > 0 && conversation.messages.length) await updateNotifs({ senderId : otherUser.id, messageId: conversation.messages[conversation.messages.length-1].id, conversationId:conversation.id},conversation.otherUser.username);
   };
 
   return (
@@ -48,7 +48,7 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      <div className={classes.typo}>{notifications === 0 ? null : notifications}</div>
+      <Typography className={classes.typo}>{notifications === 0 ? null : notifications}</Typography>
     </Box>
   );
 };
