@@ -8,8 +8,22 @@ const Message = db.define("message", {
   },
   senderId: {
     type: Sequelize.INTEGER,
-    allowNull: false,
+    allowNull: false
   },
+  readStatuses: {
+    type: Sequelize.JSONB,
+    allowNull: false
+  }
 });
+Message.updateStatuses = async function(conversationId, userId) {
+  let messageToUpdate = Message.findOne({
+    where: {
+      conversationId: conversationId
+    }
+  });
+  messageToUpdate.readStatuses[userId] = true;
+  messageToUpdate.changed("readStatuses", true);
+  await updateReadStatusForUser.save();
+};
 
 module.exports = Message;
