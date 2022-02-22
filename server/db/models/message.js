@@ -10,24 +10,22 @@ const Message = db.define("message", {
     type: Sequelize.INTEGER,
     allowNull: false
   },
-  read: {
-    type: Sequelize.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
+
+  readStatuses: {
+    type: Sequelize.JSONB,
+    allowNull: false
   }
 });
-Message.updateStatuses = async function(conversationId) {
-  return Message.update(
-    {
-      read: true
-    },
-    {
-      where: {
-        conversationId: conversationId,
-        read: false
-      }
+Message.updateStatuses = async function(conversationId, userId) {
+  let messageToUpdate = Message.findOne({
+    where: {
+      conversationId: conversationId
     }
-  );
+  });
+  messageToUpdate.readStatuses[userId] = true;
+  messageToUpdate.changed("readStatuses", true);
+  await updateReadStatusForUser.save();
+
 };
 
 module.exports = Message;
