@@ -43,7 +43,17 @@ io.on("connection", socket => {
   socket.on("new-message", data => {
     socket.broadcast.emit("new-message", {
       message: data.message,
-      sender: data.sender
+      sender: data.sender,
+      senderName: data.senderName,
+      recipientId: data.recipientId
+    });
+  });
+
+  socket.on("read-status", data => {
+    socket.broadcast.emit("read-status", {
+      messageId: data.messageId,
+      senderId: data.senderId,
+      recipientId: data.recipientId
     });
   });
 

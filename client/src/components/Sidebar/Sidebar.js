@@ -3,6 +3,7 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { Search, Chat, CurrentUser } from "./index.js";
+import { setNotifsToZero } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -22,8 +23,14 @@ const useStyles = makeStyles(() => ({
 const Sidebar = (props) => {
   const classes = useStyles();
   const conversations = props.conversations || [];
-  const { handleChange, searchTerm } = props;
+  const { handleChange, searchTerm, user } = props;
 
+  const setNotifsToZero = async (body, otherUsername) => {
+    await props.setNotifsToZero(
+      { ...body, recipientId: user.id },
+      otherUsername
+    );
+  };
   return (
     <Box className={classes.root}>
       <CurrentUser />
@@ -36,6 +43,7 @@ const Sidebar = (props) => {
         .map((conversation) => {
           return (
             <Chat
+              setNotifsToZero={setNotifsToZero}
               conversation={conversation}
               key={conversation.otherUser.username}
             />
@@ -44,11 +52,18 @@ const Sidebar = (props) => {
     </Box>
   );
 };
-
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setNotifsToZero: (body, otherUser, messageId) => {
+      dispatch(setNotifsToZero(body, otherUser, messageId));
+    },
+  };
+};
 const mapStateToProps = (state) => {
   return {
     conversations: state.conversations,
+    user: state.user,
   };
 };
 
-export default connect(mapStateToProps)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

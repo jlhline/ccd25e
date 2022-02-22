@@ -4,6 +4,8 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  reset,
+  setReadStatus,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,7 +17,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
-
+const RESET_NOTIFICATIONS = "RESET_NOTIFICATIONS";
+const SET_AVATAR = "SET_AVATAR";
 // ACTION CREATORS
 
 export const gotConversations = (conversations) => {
@@ -25,10 +28,10 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (message, sender, increment) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, sender: sender || null, increment },
   };
 };
 
@@ -60,13 +63,27 @@ export const clearSearchedUsers = () => {
 };
 
 // add new conversation when sending a new message
-export const addConversation = (recipientId, newMessage) => {
+export const addConversation = (recipientId, newMessage, increment) => {
   return {
     type: ADD_CONVERSATION,
-    payload: { recipientId, newMessage },
+    payload: { recipientId, newMessage, increment },
   };
 };
 
+//reset notifications for active chat to 0
+export const resetNotifications = (otherUsername) => {
+  return {
+    type: RESET_NOTIFICATIONS,
+    payload: otherUsername,
+  };
+};
+
+export const setAvatar = (messageData) => {
+  return {
+    type: SET_AVATAR,
+    payload: messageData,
+  };
+};
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -89,8 +106,13 @@ const reducer = (state = [], action) => {
       return addNewConvoToStore(
         state,
         action.payload.recipientId,
-        action.payload.newMessage
+        action.payload.newMessage,
+        action.payload.increment
       );
+    case RESET_NOTIFICATIONS:
+      return reset(state, action.payload);
+    case SET_AVATAR:
+      return setReadStatus(state, action.payload);
     default:
       return state;
   }

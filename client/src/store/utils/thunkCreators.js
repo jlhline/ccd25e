@@ -5,9 +5,9 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  resetNotifications,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
-
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
   config.headers["x-access-token"] = token;
@@ -88,6 +88,7 @@ const sendMessage = (data, body) => {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
+    senderName: body.senderName,
   });
 };
 
@@ -102,8 +103,46 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
-
     sendMessage(data, body);
+  } catch (error) {
+    console.error(error);
+  }
+};
+//switch recipient and sender when emitting read status
+const sendReadStatus = (data) => {
+  const { recipientId, senderId, messageId } = data;
+  socket.emit("read-status", {
+    senderId: recipientId,
+    recipientId: senderId,
+    messageId: messageId,
+  });
+};
+
+export const handleIncomingMessage = (data, increment) => async (dispatch) => {
+  const { message, sender, recipientId } = data;
+  try {
+    dispatch(setNewMessage(message, sender, increment));
+    if (!increment) {
+      sendReadStatus({
+        senderId: message.senderId,
+        recipientId: recipientId,
+        messageId: message.id,
+      });
+      await axios.put("/api/messages", {
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        recipientId: recipientId,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const setNotifsToZero = (data, otherUsername) => async (dispatch) => {
+  try {
+    dispatch(resetNotifications(otherUsername));
+    await axios.put("/api/messages", data);
+    sendReadStatus(data);
   } catch (error) {
     console.error(error);
   }
