@@ -4,12 +4,13 @@ const db = require("../db");
 const Message = db.define("message", {
   text: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: false
   },
   senderId: {
     type: Sequelize.INTEGER,
     allowNull: false
   },
+
   readStatuses: {
     type: Sequelize.JSONB,
     allowNull: false
@@ -24,6 +25,7 @@ Message.updateStatuses = async function(conversationId, userId) {
   messageToUpdate.readStatuses[userId] = true;
   messageToUpdate.changed("readStatuses", true);
   await updateReadStatusForUser.save();
+
 };
 
 module.exports = Message;

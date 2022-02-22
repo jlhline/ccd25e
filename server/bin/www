@@ -31,8 +31,8 @@ const server = http.createServer(app);
 
 const io = require("socket.io")(server);
 
-io.on("connection", (socket) => {
-  socket.on("go-online", (id) => {
+io.on("connection", socket => {
+  socket.on("go-online", id => {
     if (!onlineUsers.includes(id)) {
       onlineUsers.push(id);
     }
@@ -40,15 +40,24 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("add-online-user", id);
   });
 
-  socket.on("new-message", (data) => {
-    console.log("message broadcast", data.message);
+  socket.on("new-message", data => {
     socket.broadcast.emit("new-message", {
       message: data.message,
       sender: data.sender,
+      senderName: data.senderName,
+      recipientId: data.recipientId
     });
   });
 
-  socket.on("logout", (id) => {
+  socket.on("read-status", data => {
+    socket.broadcast.emit("read-status", {
+      messageId: data.messageId,
+      senderId: data.senderId,
+      recipientId: data.recipientId
+    });
+  });
+
+  socket.on("logout", id => {
     if (onlineUsers.includes(id)) {
       userIndex = onlineUsers.indexOf(id);
       onlineUsers.splice(userIndex, 1);

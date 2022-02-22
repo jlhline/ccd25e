@@ -10,41 +10,42 @@ router.get("/", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
+
     const userId = req.user.id;
     const conversations = await Conversation.findAll({
       where: {
         [Op.or]: {
           user1Id: userId,
-          user2Id: userId,
-        },
+          user2Id: userId
+        }
       },
       attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
-        { model: Message, order: ["createdAt", "DESC"] },
+        { model: Message, order: ["createdAt", "ASC"] },
         {
           model: User,
           as: "user1",
           where: {
             id: {
-              [Op.not]: userId,
-            },
+              [Op.not]: userId
+            }
           },
           attributes: ["id", "username", "photoUrl"],
-          required: false,
+          required: false
         },
         {
           model: User,
           as: "user2",
           where: {
             id: {
-              [Op.not]: userId,
-            },
+              [Op.not]: userId
+            }
           },
           attributes: ["id", "username", "photoUrl"],
-          required: false,
-        },
-      ],
+          required: false
+        }
+      ]
     });
 
     for (let i = 0; i < conversations.length; i++) {
@@ -67,8 +68,27 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
-      // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length-1].text;
+      convoJSON.latestMessageText =
+        convoJSON.messages[convoJSON.messages.length - 1].text;
+      //Set notifications for current user retrieving conversation
+      let notifications = 0;
+      //Set index of last message read by other user
+      let lastReadIndex = -1;
+      for (let i = 0; i < convoJSON.messages.length; i++) {
+        if (
+          !convoJSON.messages[i].read &&
+          convoJSON.messages[i].senderId !== userId
+        )
+          notifications++;
+        else if (
+          convoJSON.messages[i].read &&
+          convoJSON.messages[i].senderId === userId
+        )
+          lastReadIndex = i;
+      }
+      convoJSON.notifications = notifications;
+      convoJSON.avatarId =
+        lastReadIndex >= 0 ? convoJSON.messages[lastReadIndex].id : null;
       conversations[i] = convoJSON;
     }
 

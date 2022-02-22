@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const db = require("../db");
 const Message = require("./message");
 
@@ -10,6 +10,7 @@ Conversation.findConversation = async function(...chatMembers) {
   const conversation = await Conversation.findOne({
     where: {
       chatMembers: [...chatMembers]
+
     }
   });
 
