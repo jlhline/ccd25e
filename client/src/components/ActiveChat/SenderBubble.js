@@ -43,13 +43,13 @@ const SenderBubble = (props) => {
         <Typography className={classes.text}>{text}</Typography>
       </Box>
       <Box>
-        {avatarId === id ? (
+        {avatarId === id && (
           <Avatar
             alt={otherUser.username}
             src={otherUser.photoUrl}
             className={classes.profilePic}
-          ></Avatar>
-        ) : null}
+          />
+        )}
       </Box>
     </Box>
   );

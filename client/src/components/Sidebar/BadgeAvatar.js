@@ -35,11 +35,7 @@ const UserAvatar = (props) => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         overlap="circle"
       >
-        <Avatar
-          alt={username}
-          src={photoUrl}
-          className={classes.profilePic}
-        ></Avatar>
+        <Avatar alt={username} src={photoUrl} className={classes.profilePic} />
       </Badge>
     </Box>
   );

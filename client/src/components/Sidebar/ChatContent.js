@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -13,23 +13,22 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     letterSpacing: -0.2,
   },
-  previewText: {
-    fontSize: 12,
-    color: "#9CADC8",
-    letterSpacing: -0.17,
-  },
-  boldPreview: {
+  preview: {
     fontSize: 12,
     letterSpacing: -0.17,
-    fontWeight: "bold",
+    fontWeight: (props) => props.fontWeight,
+    color: (props) => props.color,
   },
-}));
+});
 
 const ChatContent = (props) => {
-  const classes = useStyles();
-
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
+  const { latestMessageText, otherUser, notifications } = conversation;
+  const previewProps = {
+    fontWeight: notifications ? "regular" : "bold",
+    color: notifications ? "black" : "#9CADC8",
+  };
+  const classes = useStyles(previewProps);
 
   return (
     <Box className={classes.root}>
@@ -37,15 +36,7 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography
-          className={
-            conversation.notifications
-              ? classes.boldPreview
-              : classes.previewText
-          }
-        >
-          {latestMessageText}
-        </Typography>
+        <Typography className={classes.preview}>{latestMessageText}</Typography>
       </Box>
     </Box>
   );

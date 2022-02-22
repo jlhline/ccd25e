@@ -3,7 +3,8 @@ import { Box, Typography } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
-
+import { Badge } from "@material-ui/core";
+import { styled } from "@mui/material/styles";
 import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,14 +19,14 @@ const useStyles = makeStyles((theme) => ({
       cursor: "grab",
     },
   },
-  typo: {
-    display: "flex",
-    backgroundColor: `${theme.palette.primary.main}`,
-    color: "white",
-    minWidth: "24px",
-
-    justifyContent: "center",
-    borderRadius: "10px",
+}));
+const NotifBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    right: 24,
+    top: 4,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: "4px 4px",
+    fontWeight: "bold",
   },
 }));
 
@@ -56,9 +57,7 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      <Typography className={classes.typo}>
-        {notifications === 0 ? null : notifications}
-      </Typography>
+      <NotifBadge badgeContent={notifications} color="primary" />
     </Box>
   );
 };

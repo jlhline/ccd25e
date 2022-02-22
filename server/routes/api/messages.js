@@ -8,7 +8,7 @@ router.post("/", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-    
+
     const senderId = req.user.id;
     const { recipientId, text, conversationId, sender } = req.body;
     // if we already know conversation id, we can save time and just add it to message and return
@@ -21,7 +21,7 @@ router.post("/", async (req, res, next) => {
       senderId,
       recipientId
     );
-    
+
     if (!conversation) {
       // create conversation
       conversation = await Conversation.create({
@@ -37,32 +37,30 @@ router.post("/", async (req, res, next) => {
       text,
       conversationId: conversation.id
     });
-   
+
     res.json({ message, sender });
   } catch (error) {
     next(error);
   }
 });
 router.put("/", async (req, res, next) => {
-  
   try {
-    
     const { conversationId, senderId, recipientId } = req.body;
-    if (!req.user || !conversationId ) {
+    if (!req.user || !conversationId) {
       return res.sendStatus(401);
     }
     //Find and validate conversation with sender and recipient before updating messages for protection
-    let conversation = await Conversation.findConversation(senderId,recipientId);
-    if(!conversation || conversation.id !== conversationId){
-      return res.sendStatus(401);
+    let conversation = await Conversation.findConversation(
+      senderId,
+      recipientId
+    );
+    if (!conversation || conversation.id !== conversationId) {
+      return res.sendStatus(403);
     }
 
-    await Message.updateStatuses(
-      conversationId
-    );
-    
-    return res.json({ message:`All unread messages with conversationId ${conversationId} have been set to read`});
-    
+    await Message.updateStatuses(conversationId);
+
+    return res.sendStatus(204);
   } catch (error) {
     next(error);
   }
